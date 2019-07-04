@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><proxy xmlns="http://ws.apache.org/ns/synapse" name="TCPProxy1" startOnLoad="true" statistics="disable" trace="disable" transports="tcp">
+    <target>
+        <inSequence>
+            <log level="full"/>
+            <property xmlns:ns="http://ws.apache.org/commons/ns/payload" expression="$body//ns:binary" name="binary"/>
+            <log level="custom">
+                <property expression="$ctx:binary" name="binary from payload"/>
+            </log>
+            <payloadFactory media-type="json">
+                <format>{"Request" : "$1"}</format>
+                <args>
+                    <arg xmlns:ns="http://org.apache.synapse/xsd" evaluator="xml" expression="$ctx:binary"/>
+                </args>
+            </payloadFactory>
+            <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
+            <log level="full"/>
+        </inSequence>
+        <faultSequence>
+            <log level="full"/>
+        </faultSequence>
+    </target>
+    <parameter name="transport.tcp.inputType">binary</parameter>
+    <parameter name="transport.tcp.contentType">application/binary</parameter>
+    <parameter name="transport.tcp.port">6080</parameter>
+    <description/>
+</proxy>
+                                
