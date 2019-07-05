@@ -1,20 +1,30 @@
-<?xml version="1.0" encoding="UTF-8"?><proxy xmlns="http://ws.apache.org/ns/synapse" name="TCPProxy1" startOnLoad="true" statistics="disable" trace="disable" transports="tcp">
+<?xml version="1.0" encoding="UTF-8"?>
+<proxy name="test-tcp-proxy" startOnLoad="true" transports="tcp" xmlns="http://ws.apache.org/ns/synapse">
     <target>
         <inSequence>
             <log level="full"/>
-            <property xmlns:ns="http://ws.apache.org/commons/ns/payload" expression="$body//ns:binary" name="binary"/>
+            <property expression="$body//ns:binary" name="binary" scope="default" type="STRING" xmlns:ns="http://ws.apache.org/commons/ns/payload"/>
             <log level="custom">
                 <property expression="$ctx:binary" name="binary from payload"/>
             </log>
             <payloadFactory media-type="json">
                 <format>{"Request" : "$1"}</format>
                 <args>
-                    <arg xmlns:ns="http://org.apache.synapse/xsd" evaluator="xml" expression="$ctx:binary"/>
+                    <arg evaluator="xml" expression="$ctx:binary" xmlns:ns="http://org.apache.synapse/xsd"/>
                 </args>
             </payloadFactory>
-            <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
-            <log level="full"/>
+            <property expression="json-eval($.Request)" name="binaryfrompayload" scope="default" type="STRING"/>
+            <enrich>
+                <source clone="false" property="binaryfrompayload" type="property"/>
+                <target type="body"/>
+            </enrich>
+            <property name="messageType" scope="axis2" type="STRING" value="application/binary"/>
+            <property name="ContentType" scope="axis2" type="STRING" value="application/binary"/>
+            <send>
+                <endpoint key="tcp-server-ep"/>
+            </send>
         </inSequence>
+        <outSequence/>
         <faultSequence>
             <log level="full"/>
         </faultSequence>
@@ -22,6 +32,5 @@
     <parameter name="transport.tcp.inputType">binary</parameter>
     <parameter name="transport.tcp.contentType">application/binary</parameter>
     <parameter name="transport.tcp.port">6080</parameter>
-    <description/>
 </proxy>
-                                
+
