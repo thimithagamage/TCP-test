@@ -3,6 +3,7 @@
     <target>
         <inSequence>
             <log level="full"/>
+            <log level="full"/>
             <property expression="$body//ns:binary" name="binary" scope="default" type="STRING" xmlns:ns="http://ws.apache.org/commons/ns/payload"/>
             <log level="custom">
                 <property expression="$ctx:binary" name="binary from payload"/>
